@@ -8,19 +8,34 @@ public class Buffer {
         buffer = new Vector<>(MAX_SIZE);
     }
 
-    public void add (int item) {
+    public synchronized void add (int item) throws InterruptedException {
+        while (isFull()) {
+            System.out.println("Buffer lleno. Productor esperando...");
+            wait();
+        }
         buffer.add(item);
+        notifyAll();
     }
 
-    public void remove(int index) {
-        buffer.remove(index);
+    public synchronized int remove() throws InterruptedException {
+        while(isEmpty()) {
+            System.out.println("Buffer vacío. Consumidor esperando...");
+            wait();
+        }
+        int item = buffer.remove(0);
+        notifyAll();
+        return item;
     }
 
-    public int getElementAt(int index) {
-        return buffer.get(index);
+    public boolean isEmpty(){
+        return buffer.isEmpty();
     }
 
     public boolean isFull() {
         return buffer.size() == MAX_SIZE;
+    }
+
+    public int size() {
+        return buffer.size();
     }
 }
